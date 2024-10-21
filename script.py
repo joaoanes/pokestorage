@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import argparse
 
 def load_pokemon_data(file_path):
     return pd.read_csv(file_path)
@@ -201,14 +202,22 @@ data = read_json('evolutionDict.json')
 
 
 def main():
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Process Pokémon data.")
+    parser.add_argument('pokemon_name', type=str, help="Name of the Pokémon to analyze")
+    args = parser.parse_args()
+
+    pokemon_name = args.pokemon_name
+
     # Load Pokémon data
     file_path = 'poke_export.csv'
     pokemon_data = load_pokemon_data(file_path)
     
-    evo_line, final_stages = get_evolution_lines(data, 'eevee')
+    evo_line, final_stages = get_evolution_lines(data, pokemon_name)
+    if evo_line is None or final_stages is None:
+        raise ValueError(f"Evolution data for Pokémon '{pokemon_name}' not found.")
 
     pokemon_to_keep_with_reasons = list_pokemon_to_keep_with_reasons(pokemon_data, evo_line, final_stages)
-
 
     # Display the Pokémon to keep with reasons
     df_reasons = pd.DataFrame(
